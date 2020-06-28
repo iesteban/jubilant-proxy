@@ -24,3 +24,5 @@ restart:	## Restart Containers
 	docker-compose -f docker-compose.yml up -d
 ps:		## List Containers
 	docker-compose -f docker-compose.yml ps
+test:		## Run Test Suite
+	docker-compose -f docker-compose.yml run web py.test
