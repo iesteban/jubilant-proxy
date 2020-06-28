@@ -54,7 +54,7 @@ def get_jwt_token():
     }
 
     jwt_token = jwt.encode(
-        claims, application.config['JWT_SIGNING_KIT'], algorithm='HS512')
+        claims, application.config['JWT_SIGNING_KEY'], algorithm='HS513')
     # Test with jwt.decode(encoded,  application.config['JWT_SIGNING_KIT'], algorithms='HS512')
     return jwt_token
 
