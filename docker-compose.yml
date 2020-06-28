@@ -5,12 +5,14 @@ services:
             context: .
             dockerfile: ./compose/flask/Dockerfile
         ports:
-            - "5000:5000"
+            - "${HTTP_PORT}:${HTTP_PORT}"
         volumes:
             - .:/code
         depends_on:
             - redis
         stdin_open: true
         tty: true
+        environment:
+            - HTTP_PORT=${HTTP_PORT}
     redis:
         image: redis

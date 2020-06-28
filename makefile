@@ -1,6 +1,10 @@
+
+HTTP_PORT=8080
+
 help:		## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 run:		## Builds, (re)creates, starts, and attaches to containers
+	echo "HTTP_PORT=$(HTTP_PORT)" > .env
 	docker-compose -f docker-compose.yml up
 build:	    	##Build or rebuild all services
 	docker-compose -f docker-compose.yml build
