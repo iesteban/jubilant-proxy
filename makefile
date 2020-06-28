@@ -1,12 +1,11 @@
-
 help:		## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+run:		## Builds, (re)creates, starts, and attaches to containers
+	docker-compose -f docker-compose.yml up
 build:	    	##Build or rebuild all services
 	docker-compose -f docker-compose.yml build
 up-detached:	## Builds, (re)creates, starts, and attaches to containers detached
 	docker-compose -f docker-compose.yml up -d
-up:		## Builds, (re)creates, starts, and attaches to containers
-	docker-compose -f docker-compose.yml up
 start:		## Start existing containers
 	docker-compose -f docker-compose.yml start
 down:		## Stop containers

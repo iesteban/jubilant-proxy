@@ -3,12 +3,12 @@
 ## Getting Started
 Make sure you have docker compose installed and run: 
 
-``` $ make up ```
+``` $ make run ```
 
 
 ## Other make commands
+ - run: Builds, (re)creates, starts, and attaches to containers
  - build: Build or rebuild all services
- - up-detached: Builds, (re)creates, starts, and attaches to containers
  - up-detached: Start in background
  - start: Start existing containers
  - down: 

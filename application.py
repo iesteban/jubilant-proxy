@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 
-import requests
 import datetime
+import uuid
 import pickle
+import jwt
+import requests
 from flask import request, Response, Flask
 from flask_redis import FlaskRedis
 
@@ -12,7 +14,8 @@ application.config.from_pyfile('config.py')
 redis_client = FlaskRedis(application)
 
 START_TIME_KEY = 'start_time'
-REQUESTS_COUNT_KEY = 'request_coung'
+REQUESTS_COUNT_KEY = 'request_count'
+JWT_HEADER = 'x-my-jwt'
 
 
 def start_server():
@@ -33,21 +36,42 @@ def ping(*args, **kwargs):
         redis_client.get(START_TIME_KEY))
     uptime = datetime.datetime.now() - start_time
     uptime_seconds = str(int(uptime.total_seconds()))
-    requests = redis_client.get(REQUESTS_COUNT_KEY)
-    response_content = f"Uptime: {uptime_seconds} seconds <br><br>Requests count: {requests}"
+    num_requests = redis_client.get(REQUESTS_COUNT_KEY)
+    response_content = f"Uptime: {uptime_seconds} seconds <br><br>Requests count: {num_requests}"
 
     post_request_hook()
     return Response(response_content, 200)
 
 
+def get_jwt_token():
+    now_timestamp = int(datetime.datetime.now().timestamp())
+    jti = uuid.uuid4().hex
+    payload = {"user": "username", "date": "todays date"}
+    claims = {
+        'iat': now_timestamp,
+        'jti': jti,
+        'payload': payload,
+    }
+
+    jwt_token = jwt.encode(
+        claims, application.config['JWT_SIGNING_KIT'], algorithm='HS512')
+    # Test with jwt.decode(encoded,  application.config['JWT_SIGNING_KIT'], algorithms='HS512')
+    return jwt_token
+
+
 @application.route('/<path:url>', methods=["GET", "POST"])
-def _proxy(*args, **kwargs):
+def proxy(*args, **kwargs):
+
+    # Compute headers
+    headers = {key: value for (key, value)
+               in request.headers if key != 'Host'}
+    headers[JWT_HEADER] = get_jwt_token()
+
     resp = requests.request(
         method=request.method,
         url=request.url.replace(
-            request.host_url, 'http://10.248.23.100:8080/'),
-        headers={key: value for (key, value)
-                 in request.headers if key != 'Host'},
+            request.host_url, 'http://requestbin.net/r/10kmrd51/'),
+        headers=headers,
         data=request.get_data(),
         cookies=request.cookies,
         allow_redirects=False)
@@ -58,6 +82,7 @@ def _proxy(*args, **kwargs):
                if name.lower() not in excluded_headers]
 
     response = Response(resp.content, resp.status_code, headers)
+    post_request_hook()
     return response
 
 
