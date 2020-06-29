@@ -14,14 +14,20 @@ def client():
             yield client
 
 
+class RawResponse:
+    def __init__(self, headers):
+        self.headers = headers
+
+
 class MockedResponse:
     """ Class to be used in requests mock
     """
 
-    def __init__(self, response, status_code):
+    def __init__(self, response, status_code, headers):
         self.content_dict = response
         self.content = json.dumps(response)
         self.status_code = status_code
+        self.raw = RawResponse(headers)
 
     def json(self):
         return self.content_dict
@@ -31,7 +37,8 @@ class MockedResponse:
 def test_proxy(request_mock, client):
     """Mock the proxy and check the headers"""
     request_mock.return_value = MockedResponse(
-        {'result': 'created successfully'}, 201)
+        {'result': 'created successfully'}, 201,
+        headers={'Content-Type': 'application/json'})
     proxy_response = client.post(
         '/api/users', headers={'Content-Type': 'application/json'})
 

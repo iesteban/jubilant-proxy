@@ -76,8 +76,12 @@ def proxy(*args, **kwargs):
         cookies=request.cookies,
         allow_redirects=False)
 
-    response = Response(resp.content, resp.status_code,
-                        headers)
+    excluded_headers = ['content-encoding',
+                        'content-length', 'transfer-encoding', 'connection']
+    resp_headers = [(name, value) for (name, value) in resp.raw.headers.items()
+                    if name.lower() not in excluded_headers]
+
+    response = Response(resp.content, resp.status_code, resp_headers)
     post_request_hook()
     return response
 
@@ -90,7 +94,7 @@ if __name__ == "__main__":
     application.debug = True
     application.run(
         threaded=False,
-        processes=5,
+        processes=1,
         port=application.config['HTTP_PORT'],
         host='0.0.0.0')
     # application.run(host='0.0.0.0', port=5000)
