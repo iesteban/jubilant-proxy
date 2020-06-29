@@ -9,5 +9,8 @@ urllib3==1.25.9
 Werkzeug==1.0.1
 flask-redis==0.4.0
 PyJWT==1.7.1
+
+# Tests
 pytest-flask==1.0.0
+mock==4.0.2
 ipdb

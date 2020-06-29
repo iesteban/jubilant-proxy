@@ -31,7 +31,7 @@ def post_request_hook():
 
 
 @application.route('/status')
-def ping(*args, **kwargs):
+def status(*args, **kwargs):
     start_time = pickle.loads(
         redis_client.get(START_TIME_KEY))
     uptime = datetime.datetime.now() - start_time
@@ -54,7 +54,7 @@ def get_jwt_token():
     }
 
     jwt_token = jwt.encode(
-        claims, application.config['JWT_SIGNING_KEY'], algorithm='HS513')
+        claims, application.config['JWT_SIGNING_KEY'], algorithm='HS512')
     # Test with jwt.decode(encoded,  application.config['JWT_SIGNING_KIT'], algorithms='HS512')
     return jwt_token
 
@@ -70,18 +70,14 @@ def proxy(*args, **kwargs):
     resp = requests.request(
         method=request.method,
         url=request.url.replace(
-            request.host_url, 'http://requestbin.net/r/10kmrd51/'),
+            request.host_url, application.config['PROXY_UPSTREAM_URL']),
         headers=headers,
         data=request.get_data(),
         cookies=request.cookies,
         allow_redirects=False)
 
-    excluded_headers = ['content-encoding',
-                        'content-length', 'transfer-encoding', 'connection']
-    headers = [(name, value) for (name, value) in resp.raw.headers.items()
-               if name.lower() not in excluded_headers]
-
-    response = Response(resp.content, resp.status_code, headers)
+    response = Response(resp.content, resp.status_code,
+                        headers)
     post_request_hook()
     return response
 
