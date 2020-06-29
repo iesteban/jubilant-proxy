@@ -36,7 +36,7 @@ def status(*args, **kwargs):
         redis_client.get(START_TIME_KEY))
     uptime = datetime.datetime.now() - start_time
     uptime_seconds = str(int(uptime.total_seconds()))
-    num_requests = redis_client.get(REQUESTS_COUNT_KEY)
+    num_requests = redis_client.get(REQUESTS_COUNT_KEY).decode()
     response_content = f"Uptime: {uptime_seconds} seconds <br><br>Requests count: {num_requests}"
 
     post_request_hook()
