@@ -93,8 +93,7 @@ if __name__ == "__main__":
     start_server()
     application.debug = True
     application.run(
-        threaded=False,
-        processes=1,
+        # threaded=False,
+        # processes=1,
         port=application.config['HTTP_PORT'],
         host='0.0.0.0')
-    # application.run(host='0.0.0.0', port=5000)
