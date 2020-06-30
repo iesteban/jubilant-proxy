@@ -12,6 +12,7 @@ build:	    	##Build or rebuild all services
 up-detached:	## Builds, (re)creates, starts, and attaches to containers detached
 	docker-compose -f docker-compose.yml up -d
 start:		## Start existing containers
+	echo "HTTP_PORT=$(HTTP_PORT)" > .env  # Not extensible and hacky :(. 
 	docker-compose -f docker-compose.yml start
 down:		## Stop containers
 	docker-compose -f docker-compose.yml down
@@ -20,6 +21,7 @@ destroy:	## Stop containers and remove volumes
 stop:		## Stops containers and removes containers, networks, volumes, and images
 	docker-compose -f docker-compose.yml stop
 restart:	## Restart Containers
+	echo "HTTP_PORT=$(HTTP_PORT)" > .env  # Not extensible and hacky :(. 
 	docker-compose -f docker-compose.yml stop
 	docker-compose -f docker-compose.yml up -d
 ps:		## List Containers
