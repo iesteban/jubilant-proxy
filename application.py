@@ -19,6 +19,8 @@ JWT_HEADER = 'x-my-jwt'
 
 
 def start_server():
+    """ Hook starting cache values
+    """
     redis_client.set(START_TIME_KEY, pickle.dumps(datetime.datetime.now()))
     redis_client.set(REQUESTS_COUNT_KEY, 0)
 
@@ -32,6 +34,9 @@ def post_request_hook():
 
 @application.route('/status')
 def status(*args, **kwargs):
+    """ Status html page with number of requests and uptime
+    """
+
     start_time = pickle.loads(
         redis_client.get(START_TIME_KEY))
     uptime = datetime.datetime.now() - start_time
@@ -43,7 +48,9 @@ def status(*args, **kwargs):
     return Response(response_content, 200)
 
 
-def get_jwt_token():
+def _get_jwt_token():
+    """ Compute JWT token
+    """
     now_timestamp = int(datetime.datetime.now().timestamp())
     jti = uuid.uuid4().hex
     payload = {"user": "username", "date": "todays date"}
@@ -61,12 +68,15 @@ def get_jwt_token():
 
 @application.route('/<path:url>', methods=["GET", "POST"])
 def proxy(*args, **kwargs):
+    """ Proxy endpoint. The upstream is in config['PROXY_UPSTREAM_URL']
+    """
 
     # Compute headers
     headers = {key: value for (key, value)
                in request.headers if key != 'Host'}
-    headers[JWT_HEADER] = get_jwt_token()
+    headers[JWT_HEADER] = _get_jwt_token()
 
+    # Perform request
     resp = requests.request(
         method=request.method,
         url=request.url.replace(
@@ -76,6 +86,7 @@ def proxy(*args, **kwargs):
         cookies=request.cookies,
         allow_redirects=False)
 
+    # Filter some headers for the response
     excluded_headers = ['content-encoding',
                         'content-length', 'transfer-encoding', 'connection']
     resp_headers = [(name, value) for (name, value) in resp.raw.headers.items()
